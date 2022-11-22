@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "byte-header-comparer"
+version = "0.1.0"
+description = "Finds longest common substring between file headers hex format"
+authors = ["Thomas <oeth@aarhus.dk>"]
+readme = "README.md"
+packages = [{include = "src"}, {include = "byte_header_comparer"}]
+include = ["pyproject.toml"]
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.scripts]
+comparer = "src.multip:main"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
