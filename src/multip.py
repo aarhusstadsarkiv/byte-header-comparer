@@ -2,20 +2,10 @@ from pathlib import Path
 import time
 import concurrent.futures
 import argparse
-from typing import Optional
-# data: bytes = Path('Qx1Csp.rnd').read_bytes()
-# print(data[:5])
+from typing import Generator
 
 
-# filenames = ['1st_file.bin', '2nd_file.bin', '3rd_file.bin']
-# filenames: list[Path] = [
-#     Path("1st_file.bin"),
-#     Path("2nd_file.bin"),
-#     Path("3rd_file.bin"),
-# ]
-
-
-def readBytes(filename: Path, nBytes: int) -> bytes:
+def read_bytes(filename: Path, nBytes: int) -> Generator:
     """Reads one byte at the time.
 
     Args:
@@ -23,7 +13,7 @@ def readBytes(filename: Path, nBytes: int) -> bytes:
         nBytes: how many bytes to be read.
     Returns:
         1 byte
-    
+
     """
 
     with open(filename, "rb") as file:
@@ -40,24 +30,26 @@ def readBytes(filename: Path, nBytes: int) -> bytes:
                     break
 
 
-def read_files_binary(filenames: list[Path], header_size: int = 1024) -> list[str]:
+def read_files_binary(
+    filenames: list[Path], header_size: int = 1024
+) -> list[list[str]]:
     """Read the files to a list of strings in binary representation.
 
     Args:
         list of Path: the path to the files to be read.
         header size: the size of the header to be compared.
     Returns:
-        list[str]: A list of strings in binary format ie. 0b10100101.    
+        list[str]: A list of strings in binary format ie. 0b10100101.
     """
     print("")
     print("Header size is " + str(header_size))
 
-    allfiles: list[str] = []
+    allfiles: list[list[str]] = []
 
     for x in range(len(filenames)):
         filecontent = []
 
-        for b in readBytes(filenames[x], header_size):
+        for b in read_bytes(filenames[x], header_size):
             i = int.from_bytes(b, byteorder="big")
             filecontent.append(bin(i))
             # print(f"raw({b}) - int({i}) - binary({bin(i)})")
@@ -76,7 +68,7 @@ def hexify_binary_file(allfiles) -> list[str]:
     Args:
         list[str]: the files to input.
     Returns:
-        list[str]: A list of strings in hex format without the 0x prefix.    
+        list[str]: A list of strings in hex format without the 0x prefix.
     """
     hex_string_files: list[str] = []
 
@@ -96,12 +88,9 @@ def hexify_binary_file(allfiles) -> list[str]:
     return hex_string_files
 
 
-# print(string_files)
-
-
 def longest_common_hex_substring(string1: str, string2: str) -> str:
     """Finds the longest common substring of two strings.
-    
+
     Core dynamic programming algorithm.
 
     Args:
@@ -115,8 +104,6 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
 
     for y in range(len(string1)):
         matrix.append([0] * len(string2))
-
-    # print(matrix)
 
     max_number = 0
     number_row = 0
@@ -153,9 +140,9 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
 
     start_of_substring = number_row - max_number + 1
 
-    # print(matrix)
-
-    return string1[start_of_substring : start_of_substring + max_number]
+    return string1[
+        start_of_substring : start_of_substring + max_number  # noqa
+    ]
 
 
 def rotate_string_list(string_files: list[str]) -> list[str]:
@@ -169,12 +156,13 @@ def rotate_filenames(filenames):
     to_back = filenames.pop(0)
     filenames.append(to_back)
 
+
 def get_version() -> str:
     version: str = "Ukendt version"
     with open(Path(__file__).absolute().parent.parent / "pyproject.toml") as i:
         for line in i.readlines():
             if line.startswith("version"):
-                version = line[line.index('"') + 1 : -2]
+                version = line[line.index('"') + 1 : -2]  # noqa
     return version
 
 
@@ -184,15 +172,19 @@ def main(args=None):
     """
     parser = argparse.ArgumentParser(
         description=(
-            "Compares the first 1024 bytes of each file with the other files and finds longest common substrings"
+            "Compares the first 1024 bytes of each file with the other "
+            "files and finds longest common substrings"
         )
     )
     parser.add_argument(
-        "folder", metavar="files_home", type=str, help="Home of files to compare."
+        "folder",
+        metavar="files_home",
+        type=str,
+        help="Home of files to compare.",
     )
     parser.add_argument(
         "header_size",
-        nargs='?',
+        nargs="?",
         default=1024,
         metavar="header_size",
         type=int,
@@ -203,10 +195,12 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
-    #print(args.folder)
-    #print(args.header_size)
+    # print(args.folder)
+    # print(args.header_size)
 
-    filenames: list[Path] = [f for f in Path(args.folder).iterdir() if f.is_file()]
+    filenames: list[Path] = [
+        f for f in Path(args.folder).iterdir() if f.is_file()
+    ]
 
     histogram: dict[str, int] = {}
     histogram_files: dict[str, list[Path]] = {}
