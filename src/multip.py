@@ -1,8 +1,8 @@
-from pathlib import Path
 import time
 import concurrent.futures
 import argparse
 from typing import Generator
+from pathlib import Path
 
 
 def read_bytes(filename: Path, nBytes: int) -> Generator:
