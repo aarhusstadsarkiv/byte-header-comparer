@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "byte-header-comparer"
-version = "0.1.0"
+version = "0.1.1"
 description = "Finds longest common substring between file headers hex format"
 authors = ["Thomas <oeth@aarhus.dk>"]
 readme = "README.md"
