@@ -8,7 +8,7 @@ jobs:
   call-linting-from-utils:
     uses: aarhusstadsarkiv/acautils/.github/workflows/linting.yml@073c8a34410576650737df4e711ea0dbd94d5713
 
- test:
+  test:
     name: Run tests & get coverage
     runs-on: ubuntu-latest
     steps:
