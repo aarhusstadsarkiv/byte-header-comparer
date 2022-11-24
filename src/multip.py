@@ -203,7 +203,7 @@ def main(args=None):
     ]
 
     histogram: dict[str, int] = {}
-    histogram_files: dict[str, list[Path]] = {}
+    histogram_files: dict[str, list[str]] = {}
 
     allfiles = read_files_binary(filenames, args.header_size)
     hex_files = hexify_binary_file(allfiles)
