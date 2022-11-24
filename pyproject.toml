@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "byte-header-comparer"
+name = "byte_header_comparer"
 version = "0.1.1"
 description = "Finds longest common substring between file headers hex format"
 authors = ["Thomas <oeth@aarhus.dk>"]
 readme = "README.md"
-packages = [{include = "src"}]
+# packages = [{include = "src"}]
 include = ["pyproject.toml"]
 
 
@@ -12,7 +12,7 @@ include = ["pyproject.toml"]
 python = "^3.9"
 
 [tool.poetry.scripts]
-comparer = "src.multip:main"
+comparer = "byte_header_comparer.multip:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
