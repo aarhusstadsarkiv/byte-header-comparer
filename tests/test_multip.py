@@ -1,4 +1,4 @@
-from src import multip
+from byte_header_comparer import multip
 from pathlib import Path
 from typing import Generator
 

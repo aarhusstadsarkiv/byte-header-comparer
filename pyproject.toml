@@ -4,7 +4,6 @@ version = "0.1.1"
 description = "Finds longest common substring between file headers hex format"
 authors = ["Thomas <oeth@aarhus.dk>"]
 readme = "README.md"
-packages = [{include = "src"}]
 include = ["pyproject.toml"]
 
 

@@ -195,8 +195,8 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
-    # print(args.folder)
-    # print(args.header_size)
+    if not Path(args.folder).exists():
+        exit("Input directory doesn't exists.")
 
     filenames: list[Path] = [
         f for f in Path(args.folder).iterdir() if f.is_file()
