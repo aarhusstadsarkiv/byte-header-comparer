@@ -179,7 +179,7 @@ def main(args=None):
     parser.add_argument(
         "folder",
         metavar="files_home",
-        type=str,
+        type=Path,
         help="Home of files to compare.",
     )
     parser.add_argument(
