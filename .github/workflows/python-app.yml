@@ -40,7 +40,7 @@ jobs:
         pytest
     - name: Test and generate coverage report
       run: |
-        pytest --cov-report=xml --cov=unarchiver tests/
+        pytest --cov-report=xml --cov=byte-header-comparer tests/
     - name: Upload to codecov
       uses: codecov/codecov-action@v2
       with:
