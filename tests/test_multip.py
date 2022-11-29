@@ -1,10 +1,10 @@
-#from byte_header_comparer import multip
+from byte_header_comparer import multip
 from pathlib import Path
 from typing import Generator
 
-import sys
-sys.path.append("C:\\Users\\az68636\\github\\byte-header-comparer\\byte_header_comparer")
-import multip
+# import sys
+# sys.path.append("C:\\Users\\az68636\\github\\byte-header-comparer\\byte_header_comparer")
+# import multip
 
 
 filenames: list[Path] = [Path("tests/test_data/1st_file.bin")]
