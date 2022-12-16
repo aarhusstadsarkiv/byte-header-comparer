@@ -47,6 +47,6 @@ jobs:
       with:
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
-          version: "v0.1.15"
+          version: "v0.1.16"
           fail_ci_if_error: true
           verbose: true
