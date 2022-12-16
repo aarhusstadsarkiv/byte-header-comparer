@@ -15,6 +15,7 @@ comparer = "byte_header_comparer.multip:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
 
 [tool.black]
 line-length = 79
