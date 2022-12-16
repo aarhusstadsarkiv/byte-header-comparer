@@ -17,8 +17,11 @@ comparer = "byte_header_comparer.multip:main"
 pytest = "^7.2.0"
 pytest-cov = "^4.0.0"
 
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
 [tool.black]
-line-length = 79
+line-length = 100
 
 [build-system]
 requires = ["poetry-core"]
