@@ -232,7 +232,8 @@ def main(args=None):
     lenght_of_keys = [len(k) for k in histogram_files.keys()]
 
     # A common substring can also be nothing, therefore we remove any zero from the list.
-    lenght_of_keys.remove(0)
+    if 0 in lenght_of_keys:
+        lenght_of_keys.remove(0)
 
     value = lenght_of_keys.index(min(lenght_of_keys))
     smallest_byte_header = list(histogram_files.keys())[value]

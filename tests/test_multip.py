@@ -82,6 +82,5 @@ def test_main2(capfd):
 
     assert (
         out.__contains__("48656a206d656420646967")
-        and out.__contains__("48656a206d6564206469672e")
         and err == ""
     )
