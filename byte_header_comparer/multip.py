@@ -30,9 +30,7 @@ def read_bytes(filename: Path, nBytes: int) -> Generator:
                     break
 
 
-def read_files_binary(
-    filenames: list[Path], header_size: int = 1024
-) -> list[list[str]]:
+def read_files_binary(filenames: list[Path], header_size: int = 1024) -> list[list[str]]:
     """Read the files to a list of strings in binary representation.
 
     Args:
@@ -41,8 +39,8 @@ def read_files_binary(
     Returns:
         list[str]: A list of strings in binary format ie. 0b10100101.
     """
-    #print("")
-    #print("Header size is " + str(header_size))
+    print("")
+    print("Header size is " + str(header_size))
 
     allfiles: list[list[str]] = []
 
@@ -52,13 +50,12 @@ def read_files_binary(
         for b in read_bytes(filenames[x], header_size):
             i = int.from_bytes(b, byteorder="big")
             filecontent.append(bin(i))
-            # #print(f"raw({b}) - int({i}) - binary({bin(i)})")
 
         allfiles.append(filecontent)
 
-    #print("")
-    #print("Number of files: " + str(len(allfiles)))
-    #print("")
+    print("")
+    print("Number of files: " + str(len(allfiles)))
+    print("")
     return allfiles
 
 
@@ -140,9 +137,7 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
 
     start_of_substring = number_row - max_number + 1
 
-    return string1[
-        start_of_substring : start_of_substring + max_number  # noqa
-    ]
+    return string1[start_of_substring : start_of_substring + max_number]  # noqa
 
 
 def rotate_string_list(string_files: list[str]) -> list[str]:
@@ -150,11 +145,6 @@ def rotate_string_list(string_files: list[str]) -> list[str]:
     string_files.append(to_back)
 
     return string_files
-
-
-def rotate_filenames(filenames):
-    to_back = filenames.pop(0)
-    filenames.append(to_back)
 
 
 def get_version() -> str:
@@ -198,9 +188,7 @@ def main(args=None):
     if not Path(args.folder).exists():
         exit("Input directory doesn't exists.")
 
-    filenames: list[Path] = [
-        f for f in Path(args.folder).iterdir() if f.is_file()
-    ]
+    filenames: list[Path] = [f for f in Path(args.folder).iterdir() if f.is_file()]
 
     histogram: dict[str, int] = {}
     histogram_files: dict[str, list[str]] = {}
@@ -211,30 +199,14 @@ def main(args=None):
     start = time.perf_counter()
 
     futures_list: list[concurrent.futures.Future] = []
-    count = 0
     with concurrent.futures.ProcessPoolExecutor() as executor:
         for i, file_1 in enumerate(hex_files):
-            for file_2 in hex_files[i+1:]:
-                count += 1
-                #print(f"{file_1} {file_2}")
-        #for i in range(len(hex_files)):
-                future = executor.submit(
-                    longest_common_hex_substring, file_1, file_2
-                )
+            for file_2 in hex_files[i + 1 :]:
+                future = executor.submit(longest_common_hex_substring, file_1, file_2)
                 futures_list.append(future)
-                #rotate_string_list(hex_files)
-    
+
     for i in range(len(hex_files)):
-        #print(
-        #    "Comparing files "
-        #    + str(filenames[0].absolute())
-        #    + " and "
-        #    + str(filenames[1].absolute())
-        #    + ". Longest common substring is: "
-        #)
         lcs = futures_list[i].result()
-        #print(lcs)
-        rotate_filenames(filenames)
 
         try:
             histogram[lcs] = histogram[lcs] + 1
@@ -254,35 +226,38 @@ def main(args=None):
                 str(filenames[0].absolute()),
                 str(filenames[1].absolute()),
             ]
-    
+
     finish = time.perf_counter()
+    # Find the smallest byte header by smallest length of string
+    lenght_of_keys = [len(k) for k in histogram_files.keys()]
 
-    l = [len(k) for k in histogram_files.keys()]
-    value = l.index(min(l))
-    print(value)
-    a = list(histogram_files.keys())[value]
-    print(a)
+    # A common substring can also be nothing, therefore we remove any zero from the list.
+    lenght_of_keys.remove(0)
+
+    value = lenght_of_keys.index(min(lenght_of_keys))
+    smallest_byte_header = list(histogram_files.keys())[value]
+
     seen_count = 0
-    for file_1 in enumerate(hex_files):
-        if a in file_1[1]:
+    for file_1 in hex_files:
+        if smallest_byte_header in file_1:
             seen_count += 1
-            print(":D")
-        else:
-            print("D:")
-    print(seen_count)
-    """
 
-    #print("Hex-histogram: " + str(histogram))
-    #print("\n\n")
-    #print("Longest common string and its filenames:")
-    for key, values in histogram_files.items():
-        #print(f"Longest common string: {key}")
-        #print(f"Number of files: {len(values)} \nFiles: {values}\n")
-    #print("\n\n")
-    #print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
-    #print(count)
+    if seen_count == len(hex_files):
+        print("Succes!")
+        print(
+            "The smallest of the longest common substring between all given files have been found."
+        )
+        print(f"The byte header is: {smallest_byte_header}")
+    else:
+        print("Warning!")
+        print(
+            f"The smallest of the longest common substring have only"
+            f" been seen in {seen_count} out of {len(hex_files)}"
+        )
+        print(f"The byte header is: {smallest_byte_header}")
+    print("\n")
+    print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
 
-    """
 
 if __name__ == "__main__":
     main()

@@ -31,9 +31,7 @@ def test_read_files_binary():
 
     allfiles: list[list[str]] = multip.read_files_binary(filenames, 2)
 
-    assert allfiles[0][0] == bin(0b01001000) and allfiles[0][1] == bin(
-        0b01100101
-    )
+    assert allfiles[0][0] == bin(0b01001000) and allfiles[0][1] == bin(0b01100101)
 
 
 def test_hexify_binary_file():
@@ -58,29 +56,19 @@ def test_rotate_string_list():
     assert list_rot[2] == "a"
 
 
-def test_rotate_filenames():
-    filenames: list[Path] = [
-        Path("tests/test_data/1st_file.bin"),
-        Path("tests/test_data/2nd_file.bin"),
-        Path("tests/test_data/3rd_file.bin"),
-    ]
-
-    multip.rotate_filenames(filenames)
-
-    assert filenames[2] == Path("tests/test_data/1st_file.bin")
-
 # def test_main(capsys):
-    
+
 #     args = [Path(Path(__file__).parent.resolve().__str__(), Path("test_data")), 1024]
 
 #     multip.main(args)
-    
+
 #     print(type(capsys.readouterr()))
 
 #     out, err = capsys.readouterr()
 
 #     #assert str(capsys.readouterr()).__contains__(str(type(capsys.readouterr())))
 #     assert str(out).__contains__("48656a206d656420646967")
+
 
 def test_main2(capfd):
 
@@ -92,4 +80,8 @@ def test_main2(capfd):
 
     out, err = capfd.readouterr()
 
-    assert out.__contains__("48656a206d656420646967") and out.__contains__("48656a206d6564206469672e") and err == ""
+    assert (
+        out.__contains__("48656a206d656420646967")
+        and out.__contains__("48656a206d6564206469672e")
+        and err == ""
+    )
