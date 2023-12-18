@@ -41,8 +41,8 @@ def read_files_binary(
     Returns:
         list[str]: A list of strings in binary format ie. 0b10100101.
     """
-    print("")
-    print("Header size is " + str(header_size))
+    #print("")
+    #print("Header size is " + str(header_size))
 
     allfiles: list[list[str]] = []
 
@@ -52,13 +52,13 @@ def read_files_binary(
         for b in read_bytes(filenames[x], header_size):
             i = int.from_bytes(b, byteorder="big")
             filecontent.append(bin(i))
-            # print(f"raw({b}) - int({i}) - binary({bin(i)})")
+            # #print(f"raw({b}) - int({i}) - binary({bin(i)})")
 
         allfiles.append(filecontent)
 
-    print("")
-    print("Number of files: " + str(len(allfiles)))
-    print("")
+    #print("")
+    #print("Number of files: " + str(len(allfiles)))
+    #print("")
     return allfiles
 
 
@@ -102,7 +102,7 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
     """
     matrix = []
 
-    for y in range(len(string1)):
+    for _ in range(len(string1)):
         matrix.append([0] * len(string2))
 
     max_number = 0
@@ -211,25 +211,29 @@ def main(args=None):
     start = time.perf_counter()
 
     futures_list: list[concurrent.futures.Future] = []
-
+    count = 0
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        for i in range(len(hex_files)):
-            future = executor.submit(
-                longest_common_hex_substring, hex_files[0], hex_files[1]
-            )
-            futures_list.append(future)
-            rotate_string_list(hex_files)
-
+        for i, file_1 in enumerate(hex_files):
+            for file_2 in hex_files[i+1:]:
+                count += 1
+                #print(f"{file_1} {file_2}")
+        #for i in range(len(hex_files)):
+                future = executor.submit(
+                    longest_common_hex_substring, file_1, file_2
+                )
+                futures_list.append(future)
+                #rotate_string_list(hex_files)
+    
     for i in range(len(hex_files)):
-        print(
-            "Comparing files "
-            + str(filenames[0].absolute())
-            + " and "
-            + str(filenames[1].absolute())
-            + ". Longest common substring is: "
-        )
+        #print(
+        #    "Comparing files "
+        #    + str(filenames[0].absolute())
+        #    + " and "
+        #    + str(filenames[1].absolute())
+        #    + ". Longest common substring is: "
+        #)
         lcs = futures_list[i].result()
-        print(lcs)
+        #print(lcs)
         rotate_filenames(filenames)
 
         try:
@@ -250,15 +254,35 @@ def main(args=None):
                 str(filenames[0].absolute()),
                 str(filenames[1].absolute()),
             ]
-
+    
     finish = time.perf_counter()
 
-    print("Hex-histogram: " + str(histogram))
-    print("")
-    print("Longest common string and its filenames: \n" + str(histogram_files))
-    print("")
-    print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
+    l = [len(k) for k in histogram_files.keys()]
+    value = l.index(min(l))
+    print(value)
+    a = list(histogram_files.keys())[value]
+    print(a)
+    seen_count = 0
+    for file_1 in enumerate(hex_files):
+        if a in file_1[1]:
+            seen_count += 1
+            print(":D")
+        else:
+            print("D:")
+    print(seen_count)
+    """
 
+    #print("Hex-histogram: " + str(histogram))
+    #print("\n\n")
+    #print("Longest common string and its filenames:")
+    for key, values in histogram_files.items():
+        #print(f"Longest common string: {key}")
+        #print(f"Number of files: {len(values)} \nFiles: {values}\n")
+    #print("\n\n")
+    #print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
+    #print(count)
+
+    """
 
 if __name__ == "__main__":
     main()
