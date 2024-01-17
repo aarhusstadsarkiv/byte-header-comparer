@@ -182,7 +182,8 @@ def main(args=None):
     args = parser.parse_args(args)
 
     if not Path(args.folder).exists():
-        exit("Input directory doesn't exists.")
+        print("Input directory doesn't exists.")
+        return
 
     filenames: list[Path] = [f for f in Path(args.folder).iterdir() if f.is_file()]
 
@@ -228,8 +229,7 @@ def main(args=None):
     lenght_of_keys = [len(k) for k in histogram_files.keys()]
 
     # A common substring can also be nothing, therefore we remove any zero from the list.
-    if 0 in lenght_of_keys:
-        lenght_of_keys.remove(0)
+    lenght_of_keys = [element for element in lenght_of_keys if element != 0]
 
     value = lenght_of_keys.index(min(lenght_of_keys))
     smallest_byte_header = list(histogram_files.keys())[value]
@@ -244,15 +244,14 @@ def main(args=None):
         print(
             "The smallest of the longest common substring between all given files have been found."
         )
-        print(f"The byte header is: {smallest_byte_header}")
+        print(f"The byte header is: {smallest_byte_header}\n")
     else:
-        print("Warning!")
         print(
+            "Warning!\n",
             f"The smallest of the longest common substring have only"
-            f" been seen in {seen_count} out of {len(hex_files)}"
+            f" been seen in {seen_count} out of {len(hex_files)}\n",
+            f"The byte header is: {smallest_byte_header}\n",
         )
-        print(f"The byte header is: {smallest_byte_header}")
-    print("\n")
     print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
 
 
