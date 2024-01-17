@@ -70,7 +70,6 @@ def hexify_binary_file(allfiles) -> list[str]:
     hex_string_files: list[str] = []
 
     for file_number in range(len(allfiles)):
-
         fullString = ""
         for i in range(len(allfiles[file_number])):
             token = hex(int(allfiles[file_number][i], 2)).replace("0x", "")
@@ -107,9 +106,7 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
     # number_col = 0
 
     for row in range(0, len(string1), 1):
-
         for col in range(0, len(string2), 1):
-
             if (
                 row > 0
                 and col > 0
@@ -117,7 +114,6 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
                 and string1[row - 1] == string2[col - 1]
                 and col % 2 == 1
             ):
-
                 matrix[row - 1][col - 1] = matrix[row - 2][col - 2] + 1
                 upper_left = 0
 

@@ -11,7 +11,6 @@ filenames: list[Path] = [Path("tests/test_data/1st_file.bin")]
 
 
 def test_read_bytes():
-
     filename = Path("tests/test_data/1st_file.bin")
 
     for b in multip.read_bytes(filename, 1):
@@ -28,14 +27,12 @@ def test_read_bytes_return_type():
 
 
 def test_read_files_binary():
-
     allfiles: list[list[str]] = multip.read_files_binary(filenames, 2)
 
     assert allfiles[0][0] == bin(0b01001000) and allfiles[0][1] == bin(0b01100101)
 
 
 def test_hexify_binary_file():
-
     allfiles: list[list[str]] = multip.read_files_binary(filenames, 2)
 
     hex_string_files: list[str] = multip.hexify_binary_file(allfiles)
@@ -44,7 +41,6 @@ def test_hexify_binary_file():
 
 
 def test_longest_common_hex_substring():
-
     lcs = multip.longest_common_hex_substring("abcdef", "mnopcdfg")
 
     assert lcs == "cd"
@@ -71,7 +67,6 @@ def test_rotate_string_list():
 
 
 def test_main2(capfd):
-
     test_path = Path(Path(__file__).parent, Path("test_data"))
 
     args = [test_path.__str__(), str(1024)]
@@ -80,7 +75,4 @@ def test_main2(capfd):
 
     out, err = capfd.readouterr()
 
-    assert (
-        out.__contains__("48656a206d656420646967")
-        and err == ""
-    )
+    assert out.__contains__("48656a206d656420646967") and err == ""
