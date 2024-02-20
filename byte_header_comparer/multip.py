@@ -1,6 +1,5 @@
 ### Imports
 # Standard library
-import argparse
 import concurrent.futures
 import os
 import time
@@ -40,13 +39,13 @@ def read_bytes(filename: Path, nBytes: int) -> Generator:
                     break
 
 
-def read_files_binary(filenames: list[Path], header_size: int = 1024) -> list[list[str]]:
+def read_files_binary(filenames: list[Path], header_size: int) -> list[list[str]]:
     """
     Read the files to a list of strings in binary representation.
 
     Args:
         filenames: (list[Path]) The path to the files to be read.
-        header_size: (int) The size of the header to be compared. Default is 1024.
+        header_size: (int) The size of the header to be compared.
 
     Returns:
         list[str]: A list of strings in binary format ie. 0b10100101.
@@ -146,15 +145,6 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
     return string1[start_of_substring : start_of_substring + max_number]
 
 
-def get_version() -> str:
-    version: str = "Ukendt version"
-    with open(Path(__file__).absolute().parent.parent / "pyproject.toml") as i:
-        for line in i.readlines():
-            if line.startswith("version"):
-                version = line[line.index('"') + 1 : -2]
-    return version
-
-
 def print_table(data: list[list[str]]) -> None:
     """
     Print the data in a table with Rich.
@@ -196,50 +186,28 @@ def wrap_text(string: str, lenght: int = 100) -> str:
     return "\n".join(s)
 
 
-def main(args: str = None):
+def byte_header_comparer(folder: Path, header_size: int = 1024) -> None:
     """
     Main.
 
     Args:
-        Args: Default is None
+        folder: (Path) Path to folder which files are location.
+        header_size: (int) The size of the header to be compared.
+
+    Raise:
+        OnlyOneFileError: If there is only one file to comparer byte headers.
     """
-    parser = argparse.ArgumentParser(
-        description=(
-            "Compares the first 1024 bytes of each file with the other "
-            "files and finds longest common substrings"
-        ),
-    )
-    parser.add_argument(
-        "folder",
-        metavar="files_home",
-        type=Path,
-        help="Home of files to compare.",
-    )
-    parser.add_argument(
-        "header_size",
-        nargs="?",
-        default=1024,
-        metavar="header_size",
-        type=int,
-        help="Optional size of header to compare.",
-    )
-
-    parser.add_argument("--version", action="version", version=get_version())
-
-    args = parser.parse_args(args)
-
-    if not Path(args.folder).exists():
+    if not Path(folder).exists():
         exit("Input directory doesn't exists.")
 
-    filenames: list[Path] = [f for f in Path(args.folder).iterdir() if f.is_file()]
+    filenames: list[Path] = [f for f in Path(folder).iterdir() if f.is_file()]
 
     # We need to raise an OnlyOneFileError error, when there is only one file.
     # It doesn't give sense to comparer byte headers between only one file.
     if len(filenames) == 1:
         raise OnlyOneFileError
 
-
-    allfiles = read_files_binary(filenames, args.header_size)
+    allfiles = read_files_binary(filenames, header_size)
     hex_files = hexify_binary_file(allfiles)
 
     start = time.perf_counter()
@@ -247,7 +215,7 @@ def main(args: str = None):
     futures_list: list[concurrent.futures.Future] = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
         for i, file_1 in enumerate(hex_files):
-            for file_2 in hex_files[i + 1:]:
+            for file_2 in hex_files[i + 1 :]:
                 future = executor.submit(longest_common_hex_substring, file_1, file_2)
                 futures_list.append(future)
 
@@ -266,20 +234,16 @@ def main(args: str = None):
 
     d = []
     for key, values in results_dict.items():
-        d.append([
-            f"{len(values)}/{len(filenames)}",
-            wrap_text(key),
-            "\n".join(values),
-        ])
+        d.append(
+            [
+                f"{len(values)}/{len(filenames)}",
+                wrap_text(key),
+                "\n".join(values),
+            ],
+        )
 
     print_table(d)
 
     finish = time.perf_counter()
 
-
     print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
-
-
-
-if __name__ == "__main__":
-    main()
