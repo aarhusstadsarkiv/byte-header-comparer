@@ -76,3 +76,9 @@ def test_main2(capfd):
     out, err = capfd.readouterr()
 
     assert out.__contains__("48656a206d656420646967") and err == ""
+
+
+def test_read_bytes_break_1():
+    filename = Path("tests/test_data/1st_file.bin")
+    for b in multip.read_bytes(filename, 1):
+        print(":D")
