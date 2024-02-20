@@ -4,9 +4,10 @@ import argparse
 from pathlib import Path
 from typing import Optional
 
-# Local files
 # Third-party libraries
-from multip import byte_header_comparer
+from byte_header_comparer.multip import byte_header_comparer
+
+# Local files
 
 
 def get_version() -> str:

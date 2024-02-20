@@ -7,12 +7,15 @@ from pathlib import Path
 from textwrap import wrap
 from typing import Generator
 
-# Local files
-from exceptions import OnlyOneFileError
-
 # Third-party libraries
 from rich.console import Console
 from rich.table import Table
+
+# Local files
+
+
+class OnlyOneFileError(Exception):
+    """Implements an error to raise when there only are one file to comparer byte headers."""
 
 
 def read_bytes(filename: Path, nBytes: int) -> Generator:
@@ -159,6 +162,7 @@ def print_table(data: list[list[str]]) -> None:
 
     table.add_column("Seen in", justify="right")
     table.add_column("Longest common substring")
+    table.add_column("Decoded hex code")
     table.add_column("Filenames", justify="right")
 
     for i, d in enumerate(data):
@@ -182,7 +186,7 @@ def wrap_text(string: str, lenght: int = 100) -> str:
     Returns:
         str: The wrap around string.
     """
-    s = wrap(string, 100)
+    s = wrap(string, lenght)
     return "\n".join(s)
 
 
@@ -222,7 +226,7 @@ def byte_header_comparer(folder: Path, header_size: int = 1024) -> None:
     results_list = []
     for result in futures_list:
         results_list.append(result.result())
-    results_dict = {}
+    results_dict: dict = {}
     for key in set(results_list):
         results_dict[key] = []
 
@@ -232,12 +236,15 @@ def byte_header_comparer(folder: Path, header_size: int = 1024) -> None:
                 file_name = os.path.basename(filename)
                 results_dict[key].append(file_name)
 
+    # Format the data in list of lists, so we can use Rich.
     d = []
     for key, values in results_dict.items():
+        decode_key = bytearray.fromhex(key).decode()
         d.append(
             [
                 f"{len(values)}/{len(filenames)}",
-                wrap_text(key),
+                wrap_text(key, 75),
+                wrap_text(decode_key, 50),
                 "\n".join(values),
             ],
         )
