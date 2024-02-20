@@ -1,24 +1,23 @@
 ### Imports
 # Standard library
-from pathlib import Path
-import time
-import concurrent.futures
 import argparse
-from typing import Generator
+import concurrent.futures
 import os
+import time
+from pathlib import Path
 from textwrap import wrap
+from typing import Generator
+
+# Local files
+from exceptions import OnlyOneFileError
 
 # Third-party libraries
 from rich.console import Console
 from rich.table import Table
 
-# Local files
-from exceptions import OnlyOneFileError
-
 
 def read_bytes(filename: Path, nBytes: int) -> Generator:
-    """
-    Reads one byte at the time.
+    """Read one byte at the time.
 
     Args:
         filename: (Path) File to be read.
@@ -48,11 +47,10 @@ def read_files_binary(filenames: list[Path], header_size: int = 1024) -> list[li
     Args:
         filenames: (list[Path]) The path to the files to be read.
         header_size: (int) The size of the header to be compared. Default is 1024.
-    
+
     Returns:
         list[str]: A list of strings in binary format ie. 0b10100101.
     """
-
     allfiles: list[list[str]] = []
 
     for x in range(len(filenames)):
@@ -66,14 +64,14 @@ def read_files_binary(filenames: list[Path], header_size: int = 1024) -> list[li
 
     print(
         f"Header size is {header_size}",
-        f"\nNumber of files: {str(len(allfiles))}"
+        f"\nNumber of files: {len(allfiles)!s}",
     )
     return allfiles
 
 
-def hexify_binary_file(allfiles) -> list[str]:
+def hexify_binary_file(allfiles: list[list[str]]) -> list[str]:
     """
-    Takes a file in binary string format and returns the hex equivalent.
+    Take a file in binary string format and returns the hex equivalent.
 
     Args:
         allfiles: (list[str]) The files to input.
@@ -100,7 +98,7 @@ def hexify_binary_file(allfiles) -> list[str]:
 
 def longest_common_hex_substring(string1: str, string2: str) -> str:
     """
-    Finds the longest common substring of two strings.
+    Find the longest common substring of two strings.
 
     Core dynamic programming algorithm.
 
@@ -118,7 +116,6 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
 
     max_number = 0
     number_row = 0
-    # number_col = 0
 
     for row in range(0, len(string1), 1):
         for col in range(0, len(string2), 1):
@@ -136,19 +133,17 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
                     upper_left = matrix[row - 1][col - 1]
 
                 matrix[row][col] = 1 + upper_left
-                # matrix[row][col-1] = 1 + upper_left
 
                 if matrix[row][col] > max_number:
                     max_number = matrix[row][col]
                     number_row = row
-                    # number_col = col
 
             else:
                 matrix[row][col] = 0
 
     start_of_substring = number_row - max_number + 1
 
-    return string1[start_of_substring : start_of_substring + max_number]  # noqa
+    return string1[start_of_substring : start_of_substring + max_number]
 
 
 def get_version() -> str:
@@ -156,12 +151,20 @@ def get_version() -> str:
     with open(Path(__file__).absolute().parent.parent / "pyproject.toml") as i:
         for line in i.readlines():
             if line.startswith("version"):
-                version = line[line.index('"') + 1 : -2]  # noqa
+                version = line[line.index('"') + 1 : -2]
     return version
 
 
-def print_table(data):
+def print_table(data: list[list[str]]) -> None:
+    """
+    Print the data in a table with Rich.
 
+    Args:
+        data: (list[list[str]]) A list of lists with the given data.
+
+    Returns:
+        None
+    """
     table = Table(title="Byte Header Comparer")
 
     table.add_column("Seen in", justify="right")
@@ -178,20 +181,33 @@ def print_table(data):
     console.print(table)
 
 
-def wrap_text(string):
+def wrap_text(string: str, lenght: int = 100) -> str:
+    """
+    Wrap too long strings around to a max lenght.
+
+    Args:
+        string: (str) The string which will be wrap around.
+        lenght: (int) The lenght of the string for each wrap. Default is a lenght on 100.
+
+    Returns:
+        str: The wrap around string.
+    """
     s = wrap(string, 100)
     return "\n".join(s)
 
 
-def main(args=None):
+def main(args: str = None):
     """
-    Main...
+    Main.
+
+    Args:
+        Args: Default is None
     """
     parser = argparse.ArgumentParser(
         description=(
             "Compares the first 1024 bytes of each file with the other "
             "files and finds longest common substrings"
-        )
+        ),
     )
     parser.add_argument(
         "folder",
@@ -225,7 +241,7 @@ def main(args=None):
 
     allfiles = read_files_binary(filenames, args.header_size)
     hex_files = hexify_binary_file(allfiles)
-    
+
     start = time.perf_counter()
 
     futures_list: list[concurrent.futures.Future] = []
@@ -242,20 +258,20 @@ def main(args=None):
     for key in set(results_list):
         results_dict[key] = []
 
-    for key in results_dict.keys():
+    for key in results_dict:
         for hex_file, filename in zip(hex_files, filenames):
             if key in hex_file:
                 file_name = os.path.basename(filename)
                 results_dict[key].append(file_name)
-    
+
     d = []
     for key, values in results_dict.items():
         d.append([
             f"{len(values)}/{len(filenames)}",
             wrap_text(key),
-            "\n".join(values)
+            "\n".join(values),
         ])
-    
+
     print_table(d)
 
     finish = time.perf_counter()
@@ -263,7 +279,7 @@ def main(args=None):
 
     print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
 
-    
+
 
 if __name__ == "__main__":
     main()
