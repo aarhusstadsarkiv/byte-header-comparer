@@ -6,8 +6,11 @@ import concurrent.futures
 import argparse
 from typing import Generator
 import os
+from textwrap import wrap
 
 # Third-party libraries
+from rich.console import Console
+from rich.table import Table
 
 # Local files
 from exceptions import OnlyOneFileError
@@ -148,18 +151,6 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
     return string1[start_of_substring : start_of_substring + max_number]  # noqa
 
 
-def rotate_string_list(string_files: list[str]) -> list[str]:
-    to_back = string_files.pop(0)
-    string_files.append(to_back)
-
-    return string_files
-
-
-def rotate_filenames(filenames):
-    to_back = filenames.pop(0)
-    filenames.append(to_back)
-
-
 def get_version() -> str:
     version: str = "Ukendt version"
     with open(Path(__file__).absolute().parent.parent / "pyproject.toml") as i:
@@ -167,6 +158,29 @@ def get_version() -> str:
             if line.startswith("version"):
                 version = line[line.index('"') + 1 : -2]  # noqa
     return version
+
+
+def print_table(data):
+
+    table = Table(title="Byte Header Comparer")
+
+    table.add_column("Seen in", justify="right")
+    table.add_column("Longest common substring")
+    table.add_column("Filenames", justify="right")
+
+    for i, d in enumerate(data):
+        if i % 2 == 0:
+            table.add_row(*d, style="#808080")
+        else:
+            table.add_row(*d)
+
+    console = Console()
+    console.print(table)
+
+
+def wrap_text(string):
+    s = wrap(string, 100)
+    return "\n".join(s)
 
 
 def main(args=None):
@@ -208,8 +222,6 @@ def main(args=None):
     if len(filenames) == 1:
         raise OnlyOneFileError
 
-    histogram: dict[str, int] = {}
-    histogram_files: dict[str, list[str]] = {}
 
     allfiles = read_files_binary(filenames, args.header_size)
     hex_files = hexify_binary_file(allfiles)
@@ -230,70 +242,28 @@ def main(args=None):
     for key in set(results_list):
         results_dict[key] = []
 
-    for i, key in enumerate(results_dict.keys()):
-        for j, (hex_file, filename) in enumerate(zip(hex_files, filenames)):
+    for key in results_dict.keys():
+        for hex_file, filename in zip(hex_files, filenames):
             if key in hex_file:
                 file_name = os.path.basename(filename)
                 results_dict[key].append(file_name)
-
-    for key, value in results_dict.items():
-        print(f"{key} : {(value)}")
-    """
-    for i in range(len(hex_files)):
-        lcs = futures_list[i].result()
-
-        try:
-            histogram[lcs] = histogram[lcs] + 1
-            print(histogram)
-        except KeyError:
-            histogram[lcs] = 1
-
-        try:
-            fn0_bool = str(filenames[0].absolute()) not in histogram_files[lcs]
-            fn1_bool = str(filenames[1].absolute()) not in histogram_files[lcs]
-
-            if fn0_bool:
-                histogram_files[lcs].append(str(filenames[0].absolute()))
-            if fn1_bool:
-                histogram_files[lcs].append(str(filenames[1].absolute()))
-        except KeyError:
-            histogram_files[lcs] = [
-                str(filenames[0].absolute()),
-                str(filenames[1].absolute()),
-            ]
+    
+    d = []
+    for key, values in results_dict.items():
+        d.append([
+            f"{len(values)}/{len(filenames)}",
+            wrap_text(key),
+            "\n".join(values)
+        ])
+    
+    print_table(d)
 
     finish = time.perf_counter()
-    # Find the smallest byte header by smallest length of string
-    lenght_of_keys = [len(k) for k in histogram_files.keys()]
 
-    # A common substring can also be nothing, therefore we remove any zero from the list.
-    lenght_of_keys = [element for element in lenght_of_keys if element != 0]
-    
 
-    value = lenght_of_keys.index(min(lenght_of_keys))
-    smallest_byte_header = list(histogram_files.keys())[value]
-
-    seen_count = 0
-    for file_1 in hex_files:
-        if smallest_byte_header in file_1:
-            seen_count += 1
-
-    if seen_count == len(hex_files):
-        print("Succes!")
-        print(
-            "The smallest of the longest common substring between all given files have been found."
-        )
-        print(f"The byte header is: {smallest_byte_header}\n")
-    else:
-        print(
-            "Warning!\n",
-            f"The smallest of the longest common substring have only"
-            f" been seen in {seen_count} out of {len(hex_files)}\n",
-            f"The byte header is: {smallest_byte_header}\n",
-        )
     print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
-    """
 
+    
 
 if __name__ == "__main__":
     main()
