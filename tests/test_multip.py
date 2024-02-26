@@ -54,6 +54,5 @@ class TestMultip:
 
     def test_invalid_folder(self, path_to_test_folder_1: str) -> None:
         """Test if the function 'byte_header_comparer' raise OnlyOneFileError if only one file is given."""
-        print(f"-------------> {path_to_test_folder_1}")
         with pytest.raises(OnlyOneFileError):
             byte_header_comparer(Path(path_to_test_folder_1))

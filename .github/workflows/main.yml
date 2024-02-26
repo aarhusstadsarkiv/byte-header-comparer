@@ -36,7 +36,7 @@ jobs:
       - name: Run black, ruff
         run: |
           poetry run black --check .
-          poetry run ruff --check .
+          poetry run ruff check .
  
  test:
     name: Run tests & get coverage
