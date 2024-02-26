@@ -30,7 +30,9 @@ class TestCli:
         assert "626c6120626c6120626c61" in result.output
 
     def test_valid_run_header_size(
-        self, cli_run: CliRunner, path_to_test_folder_2: str,
+        self,
+        cli_run: CliRunner,
+        path_to_test_folder_2: str,
     ) -> None:
         """Test if the cli runs without problems given a vaild folder and changes header size."""
         result = cli_run.invoke(cli, ["--header_size", "5", "--folder", path_to_test_folder_2])
