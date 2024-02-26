@@ -24,6 +24,7 @@ class TestCli:
     def test_valid_run(self, capsys, path_to_test_folder_2: Path) -> None:
         """Test if the cli runs without problems given a vaild folder."""
         cli(["--folder", path_to_test_folder_2])
+
         captured = capsys.readouterr()
 
         assert "Header size is 1024" in captured.out
@@ -33,6 +34,7 @@ class TestCli:
     def test_valid_run_header_size(self, capsys, path_to_test_folder_2: Path) -> None:
         """Test if the cli runs without problems given a vaild folder and if the header size have been change."""
         cli(["--header_size", "5", "--folder", path_to_test_folder_2])
+        
         captured = capsys.readouterr()
 
         assert "Header size is 5" in captured.out
