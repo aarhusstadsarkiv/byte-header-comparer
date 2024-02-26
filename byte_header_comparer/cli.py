@@ -31,7 +31,14 @@ def get_version() -> str:
 @click.group(invoke_without_command=True)
 @click.version_option(get_version())
 @click.option("-f", "--folder", "folder", type=Path, help="Folder of files to compare.")
-@click.option("-hs", "--header_size", "header_size", type=int, default=1024, help="Optional size of header to compare.")
+@click.option(
+    "-hs",
+    "--header_size",
+    "header_size",
+    type=int,
+    default=1024,
+    help="Optional size of header to compare.",
+)
 @click.pass_context
 def cli(ctx: ClickContext, folder: Path, header_size: int):
     byte_header_comparer(folder, header_size)

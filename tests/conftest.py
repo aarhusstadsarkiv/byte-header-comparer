@@ -48,7 +48,7 @@ def list_of_path_to_1st_file_bin() -> list[Path]:
 
 
 @pytest.fixture()
-def path_to_test_folder_1() -> str:
+def path_to_test_folder_1() -> Path:
     """
     Fixture used in
         test_cli
