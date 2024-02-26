@@ -5,15 +5,11 @@ This program takes a folder with the files which byte headers is to be compared.
 ### Command line
 Optional argument which sets the size of the byte header, default is 1024.
 ```
-usage: cli.py [-h] [-v] -f folder [-hs [header_size]]
+Usage: cli.py [OPTIONS] COMMAND [ARGS]...
 
-Compares the first 1024, if no header size is given, bytes of each file with the other files and finds longest common substrings
-
-options:
-  -h, --help            show this help message and exit
-  -v, --version         Display version number
-  -f folder, --folder folder
-                        Folder of files to compare.
-  -hs [header_size], --header_size [header_size]
-                        Optional size of header to compare.
+Options:
+  --version                   Show the version and exit.
+  -f, --folder TEXT           Folder of files to compare.        
+  -hs, --header_size INTEGER  Optional size of header to compare.
+  --help                      Show this message and exit.
 ```
