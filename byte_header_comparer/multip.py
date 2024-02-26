@@ -9,8 +9,8 @@ from textwrap import wrap
 from typing import Generator, Union
 
 # Third-party libraries
-from rich.console import Console
-from rich.table import Table
+from rich.console import Console  # type: ignore
+from rich.table import Table  # type: ignore
 
 # Local files
 
