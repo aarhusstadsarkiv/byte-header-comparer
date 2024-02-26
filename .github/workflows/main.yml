@@ -39,6 +39,7 @@ jobs:
           poetry run ruff check .
       - name: Run mypy
         run: |
+          poetry add mypy
           poetry run mypy --check .
  
  test:
