@@ -3,9 +3,10 @@
 import concurrent.futures
 import os
 import time
+from os import PathLike
 from pathlib import Path
 from textwrap import wrap
-from typing import Generator
+from typing import Generator, Union
 
 # Third-party libraries
 from rich.console import Console
@@ -190,7 +191,7 @@ def wrap_text(string: str, lenght: int = 100) -> str:
     return "\n".join(s)
 
 
-def byte_header_comparer(folder: Path, header_size: int = 1024) -> None:
+def byte_header_comparer(folder: Union[str, PathLike[str]], header_size: int = 1024) -> None:
     """
     Main.
 

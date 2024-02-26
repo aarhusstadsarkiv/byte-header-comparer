@@ -1,12 +1,27 @@
 ### Imports
 # Standard library
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Third-party libraries
 import pytest
+from click.testing import CliRunner
 
 # Local files
+
+
+@pytest.fixture()
+def cli_run():
+    """
+    Fixture used in
+        test_cli
+            test_invalid_direcotry
+            test_OnlyOneFileError
+            test_valid_run
+            test_valid_run_header_size
+    """
+    return CliRunner()
+
 
 @pytest.fixture()
 def root_path() -> Path:
@@ -31,7 +46,7 @@ def path_to_1st_file_bin() -> Path:
 
 
 @pytest.fixture()
-def list_of_path_to_1st_file_bin() -> Path:
+def list_of_path_to_1st_file_bin() -> list[Path]:
     """
     Fixture used in
         test_multip
@@ -42,7 +57,7 @@ def list_of_path_to_1st_file_bin() -> Path:
 
 
 @pytest.fixture()
-def path_to_test_folder_1(root_path: Path) -> Path:
+def path_to_test_folder_1(root_path: Path) -> str:
     """
     Fixture used in
         test_cli
@@ -54,7 +69,7 @@ def path_to_test_folder_1(root_path: Path) -> Path:
 
 
 @pytest.fixture()
-def path_to_test_folder_2(root_path: Path) -> Path:
+def path_to_test_folder_2(root_path: Path) -> str:
     """
     Fixture used in
         test_cli

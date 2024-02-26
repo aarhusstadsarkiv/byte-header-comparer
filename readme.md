@@ -7,7 +7,7 @@ Optional argument which sets the size of the byte header, default is 1024.
 ```
 usage: cli.py [-h] [-v] -f folder [-hs [header_size]]
 
-Compares the first 1024 bytes of each file with the other files and finds longest common substrings
+Compares the first 1024, if no header size is given, bytes of each file with the other files and finds longest common substrings
 
 options:
   -h, --help            show this help message and exit
