@@ -18,6 +18,7 @@ class TestCli:
     def test_OnlyOneFileError(self, cli_run: CliRunner, path_to_test_folder_1: str) -> None:
         """Test if the cli/multip raise OnlyOneFileError if the folder only contains one file."""
         result = cli_run.invoke(cli, ["--folder", path_to_test_folder_1])
+        print(f"--------------> {path_to_test_folder_1}")
         assert isinstance(result.exception, OnlyOneFileError)
 
     def test_valid_run(self, cli_run: CliRunner, path_to_test_folder_2: str) -> None:
