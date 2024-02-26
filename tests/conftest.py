@@ -53,7 +53,7 @@ def path_to_test_folder_1() -> str:
         test_multip
             test_invalid_folder
     """
-    return "tests\\test_data\\test_folder_1"
+    return ".\\tests\\test_data\\test_folder_1"
 
 
 @pytest.fixture()
@@ -64,4 +64,4 @@ def path_to_test_folder_2() -> str:
             test_valid_run
             test_valid_run_header_size
     """
-    return "tests\\test_data\\test_folder_2"
+    return ".\\tests\\test_data\\test_folder_2"
