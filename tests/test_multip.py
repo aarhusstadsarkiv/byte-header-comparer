@@ -47,6 +47,6 @@ class TestMultip:
 
         assert lcs == "cd"
     
-    def test_invalide_folder(self, path_to_test_folder_1: Path) -> None:
+    def test_invalid_folder(self, path_to_test_folder_1: Path) -> None:
         with pytest.raises(OnlyOneFileError):
             byte_header_comparer(path_to_test_folder_1)
