@@ -9,6 +9,9 @@ from click.testing import CliRunner
 # Local files
 
 
+CONST_PATH_TO_MODULE = Path(".")
+
+
 @pytest.fixture()
 def cli_run():
     """
@@ -53,15 +56,15 @@ def path_to_test_folder_1() -> str:
         test_multip
             test_invalid_folder
     """
-    return ".\\tests\\test_data\\test_folder_1"
+    return "tests\\test_data\\test_folder_1"
 
 
 @pytest.fixture()
-def path_to_test_folder_2() -> str:
+def path_to_test_folder_2() -> Path:
     """
     Fixture used in
         test_cli
             test_valid_run
             test_valid_run_header_size
     """
-    return ".\\tests\\test_data\\test_folder_2"
+    return CONST_PATH_TO_MODULE / "tests/test_data/test_folder_2"
