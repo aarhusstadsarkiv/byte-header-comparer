@@ -37,6 +37,9 @@ jobs:
         run: |
           poetry run black --check .
           poetry run ruff check .
+      - name: Run mypy
+        run: |
+          poetry run mypy .
  
  test:
     name: Run tests & get coverage
