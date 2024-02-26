@@ -9,6 +9,8 @@ from click.testing import CliRunner
 from byte_header_comparer.cli import cli
 from byte_header_comparer.multip import OnlyOneFileError
 
+CONST_PATH_TO_MODULE = Path(".")
+
 
 class TestCli:
     def test_invalid_direcotry(self, cli_run: CliRunner) -> None:
@@ -38,6 +40,7 @@ class TestCli:
     ) -> None:
         """Test if the cli runs without problems given a vaild folder and changes header size."""
         result = cli_run.invoke(cli, ["--header_size", "5", "--folder", Path(path_to_test_folder_2)])
+        print(f"---------------------> {CONST_PATH_TO_MODULE}")
 
         assert result.exit_code == 0
         assert "Header size is 5" in result.output

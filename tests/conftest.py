@@ -8,8 +8,6 @@ from click.testing import CliRunner
 
 # Local files
 
-CONST_PATH_TO_MODULE = Path(".")
-
 
 @pytest.fixture()
 def cli_run():
