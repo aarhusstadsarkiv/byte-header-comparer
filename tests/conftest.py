@@ -56,7 +56,7 @@ def path_to_test_folder_1() -> str:
         test_multip
             test_invalid_folder
     """
-    return "tests\\test_data\\test_folder_1"
+    return CONST_PATH_TO_MODULE / "tests/test_data/test_folder_1"
 
 
 @pytest.fixture()

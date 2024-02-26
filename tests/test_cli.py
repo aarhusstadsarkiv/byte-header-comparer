@@ -16,15 +16,15 @@ class TestCli:
         result = cli_run.invoke(cli, ["--folder", Path("invalid\\path\to\nothing").__str__])
         assert isinstance(result.exception, SystemExit)
 
-    def test_OnlyOneFileError(self, cli_run: CliRunner, path_to_test_folder_1: str) -> None:
+    def test_OnlyOneFileError(self, cli_run: CliRunner, path_to_test_folder_1: Path) -> None:
         """Test if the cli/multip raise OnlyOneFileError if the folder only contains one file."""
-        result = cli_run.invoke(cli, ["--folder", Path(path_to_test_folder_1)])
+        result = cli_run.invoke(cli, ["--folder", path_to_test_folder_1])
         print(f"--------------> {path_to_test_folder_1}")
         assert isinstance(result.exception, OnlyOneFileError)
 
-    def test_valid_run(self, cli_run: CliRunner, path_to_test_folder_2: str) -> None:
+    def test_valid_run(self, cli_run: CliRunner, path_to_test_folder_2: Path) -> None:
         """Test if the cli runs without problems given a vaild folder."""
-        result = cli_run.invoke(cli, ["--folder", Path(path_to_test_folder_2)])
+        result = cli_run.invoke(cli, ["--folder", path_to_test_folder_2])
 
         assert result.exit_code == 0
         assert "Header size is 1024" in result.output
@@ -34,10 +34,10 @@ class TestCli:
     def test_valid_run_header_size(
         self,
         cli_run: CliRunner,
-        path_to_test_folder_2: str,
+        path_to_test_folder_2: Path,
     ) -> None:
         """Test if the cli runs without problems given a vaild folder and changes header size."""
-        result = cli_run.invoke(cli, ["--header_size", "5", "--folder", Path(path_to_test_folder_2)])
+        result = cli_run.invoke(cli, ["--header_size", "5", "--folder", path_to_test_folder_2])
 
         assert result.exit_code == 0
         assert "Header size is 5" in result.output
