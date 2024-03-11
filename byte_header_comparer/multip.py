@@ -1,21 +1,34 @@
-from pathlib import Path
-import time
+### Imports
+# Standard library
 import concurrent.futures
-import argparse
-from typing import Generator
+import os
+import time
+from os import PathLike
+from pathlib import Path
+from textwrap import wrap
+from typing import Generator, Union
+
+# Third-party libraries
+from rich.console import Console  # type: ignore
+from rich.table import Table  # type: ignore
+
+# Local files
+
+
+class OnlyOneFileError(Exception):
+    """Implements an error to raise when there only are one file to comparer byte headers."""
 
 
 def read_bytes(filename: Path, nBytes: int) -> Generator:
-    """Reads one byte at the time.
+    """Read one byte at the time.
 
     Args:
-        filename: file to be read.
-        nBytes: how many bytes to be read.
+        filename: (Path) File to be read.
+        nBytes: (int) How many bytes to be read.
+
     Returns:
-        1 byte
-
+        Generator: 1 byte
     """
-
     with open(filename, "rb") as file:
         while True:
             byte = file.read(1)
@@ -30,20 +43,17 @@ def read_bytes(filename: Path, nBytes: int) -> Generator:
                     break
 
 
-def read_files_binary(
-    filenames: list[Path], header_size: int = 1024
-) -> list[list[str]]:
-    """Read the files to a list of strings in binary representation.
+def read_files_binary(filenames: list[Path], header_size: int) -> list[list[str]]:
+    """
+    Read the files to a list of strings in binary representation.
 
     Args:
-        list of Path: the path to the files to be read.
-        header size: the size of the header to be compared.
+        filenames: (list[Path]) The path to the files to be read.
+        header_size: (int) The size of the header to be compared.
+
     Returns:
         list[str]: A list of strings in binary format ie. 0b10100101.
     """
-    print("")
-    print("Header size is " + str(header_size))
-
     allfiles: list[list[str]] = []
 
     for x in range(len(filenames)):
@@ -52,28 +62,29 @@ def read_files_binary(
         for b in read_bytes(filenames[x], header_size):
             i = int.from_bytes(b, byteorder="big")
             filecontent.append(bin(i))
-            # print(f"raw({b}) - int({i}) - binary({bin(i)})")
 
         allfiles.append(filecontent)
 
-    print("")
-    print("Number of files: " + str(len(allfiles)))
-    print("")
+    print(
+        f"Header size is {header_size}",
+        f"\nNumber of files: {len(allfiles)!s}",
+    )
     return allfiles
 
 
-def hexify_binary_file(allfiles) -> list[str]:
-    """Takes a file in binary string format and returns the hex equivalent.
+def hexify_binary_file(allfiles: list[list[str]]) -> list[str]:
+    """
+    Take a file in binary string format and returns the hex equivalent.
 
     Args:
-        list[str]: the files to input.
+        allfiles: (list[str]) The files to input.
+
     Returns:
         list[str]: A list of strings in hex format without the 0x prefix.
     """
     hex_string_files: list[str] = []
 
     for file_number in range(len(allfiles)):
-
         fullString = ""
         for i in range(len(allfiles[file_number])):
             token = hex(int(allfiles[file_number][i], 2)).replace("0x", "")
@@ -89,30 +100,28 @@ def hexify_binary_file(allfiles) -> list[str]:
 
 
 def longest_common_hex_substring(string1: str, string2: str) -> str:
-    """Finds the longest common substring of two strings.
+    """
+    Find the longest common substring of two strings.
 
     Core dynamic programming algorithm.
 
     Args:
-        string1: First string to be compared.
-        string2: Second string to be compared.
+        string1: (str) First string to be compared.
+        string2: (str) Second string to be compared.
 
     Returns:
-        LCS: Longest common substring.
+        str: Longest common substring.
     """
     matrix = []
 
-    for y in range(len(string1)):
+    for _ in range(len(string1)):
         matrix.append([0] * len(string2))
 
     max_number = 0
     number_row = 0
-    # number_col = 0
 
     for row in range(0, len(string1), 1):
-
         for col in range(0, len(string2), 1):
-
             if (
                 row > 0
                 and col > 0
@@ -120,7 +129,6 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
                 and string1[row - 1] == string2[col - 1]
                 and col % 2 == 1
             ):
-
                 matrix[row - 1][col - 1] = matrix[row - 2][col - 2] + 1
                 upper_left = 0
 
@@ -128,137 +136,122 @@ def longest_common_hex_substring(string1: str, string2: str) -> str:
                     upper_left = matrix[row - 1][col - 1]
 
                 matrix[row][col] = 1 + upper_left
-                # matrix[row][col-1] = 1 + upper_left
 
                 if matrix[row][col] > max_number:
                     max_number = matrix[row][col]
                     number_row = row
-                    # number_col = col
 
             else:
                 matrix[row][col] = 0
 
     start_of_substring = number_row - max_number + 1
 
-    return string1[
-        start_of_substring : start_of_substring + max_number  # noqa
-    ]
+    return string1[start_of_substring : start_of_substring + max_number]
 
 
-def rotate_string_list(string_files: list[str]) -> list[str]:
-    to_back = string_files.pop(0)
-    string_files.append(to_back)
-
-    return string_files
-
-
-def rotate_filenames(filenames):
-    to_back = filenames.pop(0)
-    filenames.append(to_back)
-
-
-def get_version() -> str:
-    version: str = "Ukendt version"
-    with open(Path(__file__).absolute().parent.parent / "pyproject.toml") as i:
-        for line in i.readlines():
-            if line.startswith("version"):
-                version = line[line.index('"') + 1 : -2]  # noqa
-    return version
-
-
-def main(args=None):
+def print_table(data: list[list[str]]) -> None:
     """
-    Main...
+    Print the data in a table with Rich.
+
+    Args:
+        data: (list[list[str]]) A list of lists with the given data.
+
+    Returns:
+        None
     """
-    parser = argparse.ArgumentParser(
-        description=(
-            "Compares the first 1024 bytes of each file with the other "
-            "files and finds longest common substrings"
-        )
-    )
-    parser.add_argument(
-        "folder",
-        metavar="files_home",
-        type=Path,
-        help="Home of files to compare.",
-    )
-    parser.add_argument(
-        "header_size",
-        nargs="?",
-        default=1024,
-        metavar="header_size",
-        type=int,
-        help="Optional size of header to compare.",
-    )
+    table = Table(title="Byte Header Comparer")
 
-    parser.add_argument("--version", action="version", version=get_version())
+    table.add_column("Seen in", justify="right")
+    table.add_column("Longest common substring")
+    table.add_column("Decoded hex code")
+    table.add_column("Filenames", justify="right")
 
-    args = parser.parse_args(args)
+    for i, d in enumerate(data):
+        if i % 2 == 0:
+            table.add_row(*d, style="#808080")
+        else:
+            table.add_row(*d)
 
-    if not Path(args.folder).exists():
+    console = Console()
+    console.print(table)
+
+
+def wrap_text(string: str, lenght: int = 100) -> str:
+    """
+    Wrap too long strings around to a max lenght.
+
+    Args:
+        string: (str) The string which will be wrap around.
+        lenght: (int) The lenght of the string for each wrap. Default is a lenght on 100.
+
+    Returns:
+        str: The wrap around string.
+    """
+    s = wrap(string, lenght)
+    return "\n".join(s)
+
+
+def byte_header_comparer(folder: Union[str, PathLike[str]], header_size: int = 1024) -> None:
+    """
+    Main.
+
+    Args:
+        folder: (Path) Path to folder which files are location.
+        header_size: (int) The size of the header to be compared.
+
+    Raise:
+        OnlyOneFileError: If there is only one file to comparer byte headers.
+    """
+    if not Path(folder).exists():
         exit("Input directory doesn't exists.")
 
-    filenames: list[Path] = [
-        f for f in Path(args.folder).iterdir() if f.is_file()
-    ]
+    filenames: list[Path] = [f for f in Path(folder).iterdir() if f.is_file()]
 
-    histogram: dict[str, int] = {}
-    histogram_files: dict[str, list[str]] = {}
+    # We need to raise an OnlyOneFileError error, when there is only one file.
+    # It doesn't give sense to comparer byte headers between only one file.
+    if len(filenames) == 1:
+        raise OnlyOneFileError
 
-    allfiles = read_files_binary(filenames, args.header_size)
+    allfiles = read_files_binary(filenames, header_size)
     hex_files = hexify_binary_file(allfiles)
 
     start = time.perf_counter()
 
     futures_list: list[concurrent.futures.Future] = []
-
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        for i in range(len(hex_files)):
-            future = executor.submit(
-                longest_common_hex_substring, hex_files[0], hex_files[1]
-            )
-            futures_list.append(future)
-            rotate_string_list(hex_files)
+        for i, file_1 in enumerate(hex_files):
+            for file_2 in hex_files[i + 1 :]:
+                future = executor.submit(longest_common_hex_substring, file_1, file_2)
+                futures_list.append(future)
 
-    for i in range(len(hex_files)):
-        print(
-            "Comparing files "
-            + str(filenames[0].absolute())
-            + " and "
-            + str(filenames[1].absolute())
-            + ". Longest common substring is: "
+    results_list = []
+    for result in futures_list:
+        results_list.append(result.result())
+    results_dict: dict = {}
+    for key in set(results_list):
+        results_dict[key] = []
+
+    for key in results_dict:
+        for hex_file, filename in zip(hex_files, filenames):
+            if key in hex_file:
+                file_name = os.path.basename(filename)
+                results_dict[key].append(file_name)
+
+    # Format the data in list of lists, so we can use Rich.
+    d = []
+    for key, values in results_dict.items():
+        decode_key = bytearray.fromhex(key).decode()
+        d.append(
+            [
+                f"{len(values)}/{len(filenames)}",
+                wrap_text(key, 75),
+                wrap_text(decode_key, 50),
+                "\n".join(values),
+            ],
         )
-        lcs = futures_list[i].result()
-        print(lcs)
-        rotate_filenames(filenames)
 
-        try:
-            histogram[lcs] = histogram[lcs] + 1
-        except KeyError:
-            histogram[lcs] = 1
-
-        try:
-            fn0_bool = str(filenames[0].absolute()) not in histogram_files[lcs]
-            fn1_bool = str(filenames[1].absolute()) not in histogram_files[lcs]
-
-            if fn0_bool:
-                histogram_files[lcs].append(str(filenames[0].absolute()))
-            if fn1_bool:
-                histogram_files[lcs].append(str(filenames[1].absolute()))
-        except KeyError:
-            histogram_files[lcs] = [
-                str(filenames[0].absolute()),
-                str(filenames[1].absolute()),
-            ]
+    print_table(d)
 
     finish = time.perf_counter()
 
-    print("Hex-histogram: " + str(histogram))
-    print("")
-    print("Longest common string and its filenames: \n" + str(histogram_files))
-    print("")
     print(f"Finished multiprocessing in {round(finish-start, 2)} second(s)")
-
-
-if __name__ == "__main__":
-    main()

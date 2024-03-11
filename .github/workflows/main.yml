@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python 3.9
         uses: actions/setup-python@v1
         with:
-          python-version: 3.9.15
+          python-version: 3.9.18
       - name: Install Poetry
         uses: snok/install-poetry@v1.3.3
         with:
@@ -33,10 +33,14 @@ jobs:
         run: |
           poetry env use 3.9
           poetry install
-      - name: Run flake8, black
+      - name: Run black, ruff
         run: |
-          poetry run flake8 .
           poetry run black --check .
+          poetry run ruff check .
+      - name: Run mypy
+        run: |
+          poetry add mypy
+          poetry run mypy --check .
  
  test:
     name: Run tests & get coverage
@@ -47,7 +51,7 @@ jobs:
       - name: Set up Python 3.9
         uses: actions/setup-python@v1
         with:
-          python-version: 3.9.15
+          python-version: 3.9.18
       - name: Set up poetry
         uses: snok/install-poetry@v1.3.3
       - name: Set up cache
@@ -65,9 +69,4 @@ jobs:
           poetry install
       - name: Test and generate coverage report
         run: |
-          poetry run pytest --cov-report=xml --cov=unarchiver tests/
-      - name: Upload to codecov
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
+          poetry run pytest tests/
